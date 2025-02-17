@@ -15,7 +15,8 @@ SAFE_STATE_UDP_PORT = 4005
 TELEMETRY_UDP_PORT = 10022
 CMD_UDP_PORT = 6005
 STATUS_UDP_PORT = 7005
-POSE_DISPLAY_PORT = 8005
+#POSE_DISPLAY_PORT = 8005
+POSE_DISPLAY_PORT = 10020
 MANUAL_POSE_UDP_PORT = 9005
 
 #Define how frequently the state machine updates and performs operations. This includes rate at which pose commands are updated in machanical chair
@@ -87,6 +88,7 @@ class RUNNING(State):
         if(safe_state != True or user_command == "stop"):
             return "stop"
         else:
+            #display_sender.send("request, 0,0,0,0.17,-0.17,0", (UDP_IP, POSE_DISPLAY_PORT))
             display_sender.send(values, (UDP_IP, POSE_DISPLAY_PORT))
 
 #The STOP state waits until the operator commands it to go back to the idle state and the chair is in it's safe state
