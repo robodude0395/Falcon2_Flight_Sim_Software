@@ -45,7 +45,7 @@ class CheckboxControl(QWidget):
         data = int(self.checkbox.isChecked())
         data_str = str(data)
         self.udp_sender.send(data_str, (UDP_IP, TELEMETRY_UDP_PORT))
-        print("Sent data:", data_str)
+        #print("Sent data:", data_str)
 
 if __name__ == "__main__":
     app = QApplication(sys.argv)

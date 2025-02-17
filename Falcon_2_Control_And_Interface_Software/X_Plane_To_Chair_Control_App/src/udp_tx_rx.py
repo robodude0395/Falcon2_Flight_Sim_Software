@@ -28,12 +28,13 @@ class UdpSend(object):
 
 class UdpReceive(object):
 
-    def __init__(self, port):
+    def __init__(self, port, blocking = True):
         self.in_q = Queue()
         listen_address = ('', port)
         self.sender_addr = None # populated upon receiving messages
         self.sock = socket.socket(socket.AF_INET, socket.SOCK_DGRAM) 
         self.sock.bind(listen_address)
+        self.sock.setblocking(blocking)
         t = threading.Thread(target=self.listener_thread, args= (self.sock, self.in_q))
         t.daemon = True
         log.debug("UDP receiver listening on port %d", listen_address[1])
@@ -62,17 +63,18 @@ class UdpReceive(object):
         if self.sender_addr:
             self.sock.sendto(data.encode('utf-8'), self.sender_addr)     
 
-    def listener_thread(self, sock, in_q ):
+    def listener_thread(self, sock, in_q, callback=None):
         MAX_MSG_LEN = 256
         while self.isRunning:
             try:
                 msg, addr = sock.recvfrom(MAX_MSG_LEN)
-                #  print addr, msg
                 msg = msg.decode('utf-8').rstrip()
-                self.in_q.put((addr, msg))
+                self.in_q.put((addr, msg))  # Store message in queue
+                
+                if callback:  # If a callback is provided, execute it
+                    callback(msg)
             except Exception as e:
-                pass
-                # print("Udp listen error", e)
+                pass  # Log error instead of ignoring it
 
 
 """ the following is for testing """

@@ -77,8 +77,8 @@ class AirplaneControl(QWidget):
     #states whether the chair or airplane iss in it's safe state
     def send_udp_data(self):
         data = self.pose_values.values()
-        print(data)
-        data_str = ",".join(map(str, data))
+        #print(data)
+        data_str = ("xplane_telemetry, "+",".join(map(str, data)))
         self.udp_sender.send(data_str, (UDP_IP, TELEMETRY_UDP_PORT))
         
 #Start up the window once script is called

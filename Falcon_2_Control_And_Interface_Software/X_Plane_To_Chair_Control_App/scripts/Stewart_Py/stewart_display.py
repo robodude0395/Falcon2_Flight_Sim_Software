@@ -6,15 +6,14 @@ import matplotlib.pyplot as plt
 import numpy as np
 import time
 import matplotlib.animation as animation
+from udp_tx_rx import UdpReceive
 
 #Define UDP port to listen in for pose data. This will be sent from the state_machine.py node
 UDP_IP = "127.0.0.1"
 TELEMETRY_UDP_PORT = 8005
 
 # Set up UDP socket to listen for pose data (Non-blocking)
-sock_telemetry = socket.socket(socket.AF_INET, socket.SOCK_DGRAM)
-sock_telemetry.bind((UDP_IP, TELEMETRY_UDP_PORT))
-sock_telemetry.setblocking(False)  # Non-blocking mode to prevent delays
+telemetry_listener = UdpReceive(TELEMETRY_UDP_PORT)
 
 # Stewart Platform Setup. This is hardcoded and not obtained for a config file yet. Either way this is temporary means of displaying a how a similar
 #platform moves until later when the proper display code is implemented and the chair is sufficiently built
@@ -24,28 +23,21 @@ platform = Stewart_Platform(132/2, 100/2, 30, 130, 0.2269, 0.82, 5*np.pi/6)
 #Later on the inverse kinematics calculations will be moved to state_machine.py node so that the chair only receives the desired muscle pressures.
 def listen_for_telemetry():
     """Reads the latest UDP message, discarding old ones."""
-    latest_data = None
+    data = None
 
-    while True:
-        # Check if data is available without blocking
-        ready, _, _ = select.select([sock_telemetry], [], [], 0)  
-        if not ready:
-            break  # Exit if no more data
+    while(telemetry_listener.available() > 0):
+        data = telemetry_listener.get()
 
-        try:
-            data, addr = sock_telemetry.recvfrom(1024)  # Read all available data
-            latest_data = data  # Keep only the latest message
-        except BlockingIOError:
-            break  # Exit if there's no data left
-
-    if latest_data is None:
+    if data is None:
         return [], []
 
-    # Unpack and return the latest values
-    unpacked_values = struct.unpack("6f?", latest_data)
-    print("Latest Data:", unpacked_values)
-    
-    trans, rot = unpacked_values[:3], unpacked_values[3:6]
+    pose_data = data[1].split(",")
+    pose_data = [int(float(r)) for r in pose_data]
+    rotation = pose_data[5:9]
+
+    #Flips roll and putch for debug's sake
+    rotation[0], rotation[1] = -rotation[1], rotation[0]
+    trans, rot = [0,0,0], rotation
     return trans, rot
 
 # Initialize figure and axis for real-time plotting
