@@ -5,6 +5,8 @@ import struct
 import select
 import numpy as np
 from udp_tx_rx import UdpReceive, UdpSend
+from platform_kinematics_module import PoseToDistances
+from platform_pose import Platform
 
 #This code performs the bulk of the underlying logic within the software. It's mainly in charge of getting the airplane's telemetry as linear 
 #acceleration and rotational pose values and working out the inverse kinematics for the mechanical chair to send to via UDP
@@ -81,15 +83,32 @@ class READY(State):
 #In this state, the machine will transition to the stop state if either the operator commands to transition to the idle state or the chair is not
 #on it's safe state
 class RUNNING(State):
+    def __init__(self):
+        super().__init__()
+        self.pose_to_distances = PoseToDistances()
+
+        #Added optimization so that receiver UDP queue is not overloaded when paused
+        self.prev_values = values
+
+        self.platform = Platform()
+
     def execute(self):
         global safe_state
         global user_command
         global values
         if(safe_state != True or user_command == "stop"):
             return "stop"
-        else:
+
+        #Only send messages when "values" has changed
+        elif(values != self.prev_values):
             #display_sender.send("request, 0,0,0,0.17,-0.17,0", (UDP_IP, POSE_DISPLAY_PORT))
-            display_sender.send(values, (UDP_IP, POSE_DISPLAY_PORT))
+            xyzrpy = ",".join(values.split(",")[:3]) + "," + ",".join(values.split(",")[-3:])
+            xyzrpy_float = [float(num) for num in xyzrpy.split(",")]
+            #print(self.pose_to_distances.move_platform(xyzrpy_float))
+            new_values = "request" + "," + xyzrpy + "," + ",".join(map(str, self.pose_to_distances.move_platform(xyzrpy_float)))
+            display_sender.send(new_values, (UDP_IP, POSE_DISPLAY_PORT))
+            self.prev_values = values
+            self.platform.set_pose(xyzrpy_float)
 
 #The STOP state waits until the operator commands it to go back to the idle state and the chair is in it's safe state
 class STOP(State):
@@ -164,15 +183,20 @@ if __name__ == "__main__":
         if current_time >= target_time:
             #current_airplane telemetry = ["x_accel", "y_accel", "z_accel", "roll_rate", "pitch_rate", "yaw_rate", "bank_angle", "pitch_angle"]
 
-            #This way DOES NOT GET LATEST MESSAGE, might come back to bite in the rear later on
-            temp_values = telemetry_listener.get()
+            temp_values = None
+            #This way DOES NOT GET LATEST MESSAGE, might come back to bite in the rear later on (it did)
+            while(telemetry_listener.available() > 0):
+                temp_values = telemetry_listener.get()
+
             if(temp_values != None):
                 values = temp_values[1].split(",", 1)[1] #remove first value which is "xplane_telemetry" (useless for software)
 
             temp_safe_state = safe_state_listener.get()
             if(temp_safe_state != None):
                 safe_state = int(temp_safe_state[1])
-
+            #UNCOMMENT WHEN NOT NEEDED!
+            safe_state = True
+            
             cmd_message = command_listener.get()
 
             if(cmd_message != None):

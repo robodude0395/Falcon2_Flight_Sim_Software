@@ -44,7 +44,8 @@ def listen_for_telemetry():
 fig = plt.figure()
 ax = fig.add_subplot(111, projection='3d')
 
-#Define update method which displays stewart platform after applying the inverse kinematic values. The platform's pose matches the desired airplane pose.
+#Define update method which displays stewart platform after applying the inverse kinematic values. The platform's pose matches the desired airplane 
+#pose.
 def update(frame):
     """Update function for real-time plotting"""
     trans, rot = listen_for_telemetry()

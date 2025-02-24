@@ -41,7 +41,7 @@ siminterface folder structure
 
 
 from sim_config import selected_sim, platform_config
-from siminterface_ui import MainWindow
+from X_Plane_To_Chair_Control_App.src.siminterface_ui import MainWindow
 from kinematics.kinematicsV2 import Kinematics
 from kinematics.dynamics import Dynamics
 import output.d_to_p as d_to_p
@@ -166,6 +166,7 @@ class SimInterfaceCore(QtCore.QObject):
         self.swap_roll_pitch = self.cfg.SWAP_ROLL_PITCH
 
         self.dynam = Dynamics()
+        #How far platform can move along in each eaxis
         self.dynam.begin(self.cfg.limits_1dof, "shape.cfg")
 
         # Load distance->pressure file
@@ -228,6 +229,7 @@ class SimInterfaceCore(QtCore.QObject):
                 # self.simStatusChanged.emit("Sim connected")
                 self.state = 'disabled'  # default
                 # Possibly set washout times
+                #Array of 6 values where each num is number of seconds to wash back to 0
                 washout_times = self.sim.get_washout_config()
                 for idx in range(6):
                     self.dynam.set_washout(idx, washout_times[idx])
