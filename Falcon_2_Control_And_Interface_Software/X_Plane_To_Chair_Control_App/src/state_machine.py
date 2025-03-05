@@ -15,6 +15,7 @@ from platform_pose import Platform
 UDP_IP = "127.0.0.1"  # Change if needed
 SAFE_STATE_UDP_PORT = 4005
 TELEMETRY_UDP_PORT = 10022
+#TELEMETRY_UDP_PORT = 5005
 CMD_UDP_PORT = 6005
 STATUS_UDP_PORT = 7005
 #POSE_DISPLAY_PORT = 8005
@@ -106,6 +107,7 @@ class RUNNING(State):
             xyzrpy_float = [float(num) for num in xyzrpy.split(",")]
             #print(self.pose_to_distances.move_platform(xyzrpy_float))
             new_values = "request" + "," + xyzrpy + "," + ",".join(map(str, self.pose_to_distances.move_platform(xyzrpy_float)))
+            print(new_values)
             display_sender.send(new_values, (UDP_IP, POSE_DISPLAY_PORT))
             self.prev_values = values
             self.platform.set_pose(xyzrpy_float)
