@@ -1,5 +1,4 @@
 from sim_config import selected_sim, platform_config
-from siminterface_ui import MainWindow
 from kinematics.kinematicsV2 import Kinematics
 from kinematics.dynamics import Dynamics
 import output.d_to_p as d_to_p
@@ -25,6 +24,7 @@ class Platform():
         #Limits are: (100, 122, 140, math.radians(15), math.radians(20), math.radians(12))
         ik_distances = self.pose_to_distances.move_platform(values)
         self.muscle.move_distance(ik_distances)
+        
 
 '''
 UDP_IP = "127.0.0.1"  # Change if needed
