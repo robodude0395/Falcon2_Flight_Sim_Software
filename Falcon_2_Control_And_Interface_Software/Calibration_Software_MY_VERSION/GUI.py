@@ -7,7 +7,7 @@ class CalibrationApp(QMainWindow):
 
         # Window Setup
         self.setWindowTitle("Calibration Tool")
-        self.setGeometry(100, 100, 800, 300)
+        self.setGeometry(100, 100, 1200, 300)
 
         # Central Widget
         self.central_widget = QWidget(self)
@@ -17,11 +17,11 @@ class CalibrationApp(QMainWindow):
         layout = QVBoxLayout(self.central_widget)
 
         # Load input
-        self.label_load = QLabel("Load (kg):", self)
-        layout.addWidget(self.label_load)
-        self.spinBox_load = QSpinBox(self)
-        self.spinBox_load.setRange(0, 1000)  # Min 0, Max 1000
-        layout.addWidget(self.spinBox_load)
+        #self.label_load = QLabel("Load (kg):", self)
+        #layout.addWidget(self.label_load)
+        #self.spinBox_load = QSpinBox(self)
+        #self.spinBox_load.setRange(0, 1000)  # Min 0, Max 1000
+        #layout.addWidget(self.spinBox_load)
 
         # Delay input
         self.label_delay = QLabel("Delay per step (ms):", self)

@@ -50,8 +50,8 @@ class FluidicMuscle:
             extension = self._hysteresis_function(normalized_pressure, contraction=False) * load_factor
 
         # Add small random variance for realism
-        noise = np.random.uniform(-2, 2)
-        extension += noise
+        #noise = np.random.uniform(-2, 2)
+        #extension += noise
 
         # Clamp extension between min and max
         self.current_extension = np.clip(extension, self.min_extension, self.max_extension)

@@ -20,14 +20,14 @@ TERM_CHARS = bytearray([10]) # expect newline terminated msgs
 class SerialProcess(object):
     def __init__(self, result_queue=None):
         if result_queue is True:
-            self.queue = Queue() # modified mar 2023 to create cue if arg is True
+            self.queue = Queue(maxsize=1) # modified mar 2023 to create cue if arg is True
             # print("created queue")
         else:
             self.queue = result_queue 
         self.lock = threading.Lock()
         self.s = serial.Serial()
         self.is_started = False
-        self.data = None    
+        self.data = None   
         log.debug("TODO in SerialProcess, check default term char")
 
     @staticmethod
@@ -85,7 +85,7 @@ class SerialProcess(object):
             with self.lock:
                 data = self.data
             return data
-
+    
     def available(self):
         if self.queue != None:
             return self.queue.qsize()

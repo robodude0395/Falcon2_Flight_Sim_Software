@@ -5,7 +5,7 @@ import numpy as np
 target_time = 0
 
 global values
-values = [1000,0,0,0,0,0]
+values = [0,0,0,0,0,0]
 
 CYCLE_TIME_MS = 50
 
